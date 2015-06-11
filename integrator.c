@@ -39,7 +39,6 @@
 // return;   
 // }
 
-        
 void flow(long double xi[],long double xo[])    /* This function contains the flow that we are going to use to find the safe sets. */
 {                                               
 long double c2,c3,c4,c5,b1,b2,HBar,omegaN;

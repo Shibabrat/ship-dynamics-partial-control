@@ -43,7 +43,7 @@ xlabel('$x$ index','Interpreter','latex');
 ylabel('$\dot{x}$ index','Interpreter','latex');
 
 if clusterFlag,
-    saveas(h,['figure_',num2str(N+1),'.fig'],'fig')
+    saveas(h,['figure_',num2str(N+1),'_',num2str(control),'.fig'],'fig')
 end
 
 n=1;
@@ -81,7 +81,7 @@ ylabel('$\dot{x}$ index','Interpreter','latex');
 
 
 if clusterFlag,
-    saveas(h,['figure_',num2str(N+2),'.fig'],'fig')
+    saveas(h,['figure_',num2str(N+2),'_',num2str(control),'.fig'],'fig')
 end
 
 

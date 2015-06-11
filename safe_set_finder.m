@@ -29,29 +29,53 @@ format long;
 % control=0.0475;    %Here we specify the bound of the control that we are going to use.
 % disturbance=0.08;    %Here we specify the bound of the disturbance that we are going to use.
 
-global epsilonC
-% epsilonC = 2.95;
-epsilonD = 3;
-H = 4.94;
-HBar = 0.73*pi*(H/221.94);
-control = epsilonC*HBar
-disturbance = epsilonD*HBar
+% global epsilonC
+% % epsilonC = 2.95;
+% epsilonD = 3;
+% H = 4.94;
+% HBar = 0.73*pi*(H/221.94);
+% control = epsilonC*HBar
+% disturbance = epsilonD*HBar
+
+% omegaN = 0.62;
+% 
+% xi=-0.88;    %Here are the corners of the box where we are going to 
+% yi=-0.52;    %compute the Safe Sets and  the Asymptotic Safe Set.
+% 
+% xf=0.88;
+% yf=0.52;
+
+%Obtaining the energy of tube
+energyFuncHandle = @(R,x,y,vx,vy)( 0.5*vx.^2 + (vy.^2)/R^2 + ...
+                                0.5*x.^2 + y.^2 - (x.^2).*y);
+
+leftExit = importdata('xeU1_stable_exit_00_left_e1.txt');
+indLeftExit = leftExit(:,3) > 0;
+R = 1.6;
+e = energyFuncHandle(R,leftExit(indLeftExit,1), ...
+    leftExit(indLeftExit,2),leftExit(indLeftExit,3), ...
+    leftExit(indLeftExit,4));
+e = sum(e)/length(e);
+
+R = 1.6;
+xi=-sqrt(e);     
+yi=-R*sqrt(e);    
+
+xf=sqrt(e);
+yf=R*sqrt(e);
+global control disturbance
+% control=0.041;    %Here we specify the bound of the control that we are going to use.
+% disturbance=0.1;    %Here we specify the bound of the disturbance that we are going to use.
+
+
 safeRatio = control/disturbance
-omegaN = 0.62;
-
-xi=-0.88;    %Here are the corners of the box where we are going to 
-yi=-0.52;    %compute the Safe Sets and  the Asymptotic Safe Set.
-
-xf=0.88;
-yf=0.52;
-
-    
 if nargin == 0 	%Default case
 	N=3001;    	%Here we specify the resolution of the grid, for example if we choose
            		%N=6001, we will have 6001x6001=36012001 points.
 end
 
-save(['safe_set_sculpting_params_',num2str(epsilonC)])
+% save(['safe_set_sculpting_params_',num2str(epsilonC),'.mat'])
+save(['safe_set_sculpting_params_',num2str(e),'_',num2str(R),'_',num2str(control),'.mat'])
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -150,9 +174,9 @@ set(gca,'fontsize',18)
 
 box on;
 
-if clusterFlag,
-    saveas(h,['figure_',num2str(i),'.fig'],'fig')	%Save the figure    
-end
+% if clusterFlag,
+    saveas(h,['figure_',num2str(i),'_',num2str(control),'.fig'],'fig')	%Save the figure    
+% end
 
 if (i>1)
 close(formerh);
@@ -189,7 +213,10 @@ end;
 % ylabel('Number of points');
 % 
 
-save(['safe_set_',num2str(epsilonC),'.mat'],'grid_points_base')
-save(['safe_set_sculpting_',num2str(epsilonC),'.mat'])
+% save(['safe_set_',num2str(epsilonC),'.mat'],'grid_points_base')
+% save(['safe_set_sculpting_',num2str(epsilonC),'.mat'])
+
+save(['safe_set_',num2str(e),'_',num2str(R),'_',num2str(control),'.mat'],'grid_points_base')
+save(['safe_set_sculpting_',num2str(e),'_',num2str(R),'_',num2str(control),'.mat'])
 
 end

@@ -60,15 +60,4 @@ end
 runTime = toc;
 save -v7.3
 
-%Setting up the flag for compiling; if any changes are made to the source or header files, set this to true
-% editFlag = true;        
-% 
-% if editFlag,
-%     mex driver_integrate.c ...
-%         -I/usr/local/include/ ...
-%         -L/usr/local/lib/ -lgsl -lgslcblas -lm CFLAGS="\$CFLAGS -std=c99"
-% end
-% 
-% tic;
-% [tArray,xArray] = driver_integrate(0, 17*((2*pi)/omegaE), phiMesh, pPhiMesh);
-% toc;
+

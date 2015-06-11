@@ -24,7 +24,7 @@ HBar = alpha0*pi*(H/lambda);
 if (nargin < 3 || isempty(flag)) %without event 
 
     phi = stateVars(1,:); 
-    pPhi = stateVars(2,:);
+    pPhi = stateVars(2,:);  
     
     stateVarsDot(1,:) = pPhi;
     stateVarsDot(2,:) = - phi - c2.*abs(phi).*phi - c3.*phi.^3 ...
