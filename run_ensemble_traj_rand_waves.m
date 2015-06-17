@@ -1,13 +1,14 @@
+%SCRIPT to compute the statistical relation between continuous forcing of
+%rough seas and the discrete disturbance used in partial control
+
 global H chi
-
-numH = 1;
+numGridPts = 5;
+[phiMesh, pPhiMesh] = meshgrid(linspace(-0.88,0.88,phiRes)', ...
+    linspace(-0.52,0.52,pPhiRes)');
+% phiMesh = -0.26;
+% pPhiMesh = -0.44;
+ 
 NEnsemble = 100;
-for dH=0:0.1:8
-%Paramters for sea waves 
-H = 2 + dH;
-chi = 90*(pi/180);
-
-%Parameters for time domain 
 omegaZ = 0.527;
 numSamples = 1e2;
 numWaveCycles = 1;
@@ -15,49 +16,54 @@ numWaveCycles = 1;
 %=====================================================================%
 timeVec = linspace(0,numWaveCycles*(2*pi/omegaZ),numSamples)';
 
-trajEnsemble = struct([]);
-% trajEnsemble.t0 = [];
-% trajEnsemble.x0 = [];
-xInit = [0.1 0.25];
-tic;
-for kk = 1:NEnsemble
-    [tO,xO] = func_get_traj_random_waves(xInit);
-    plot(tO,xO(:,1),'-b')
-    hold on
-    trajEnsemble(kk).t0 = tO;
-    trajEnsemble(kk).x0 = xO;
-end
-ensembleRunTime = toc;
+for ii = 1:size(phiMesh,1)
+    for jj = 1:size(phiMesh,2)
+        H0 = 2;
+        dH = 0;
+        numH = 1;
+        for dH=0:0.1:8
+            %Paramters for sea waves 
+            H = H0 + dH;
+            chi = 90*(pi/180);
 
-%%Generate the point under the periodic forcing
-% OPTIONS = odeset('RelTol',3e-14,'AbsTol',1e-14,'Events','on'); % high accuracy
-OPTIONS = odeset('RelTol',3e-8,'AbsTol',1e-8); % high accuracy w/o event catching
 
-[tP,xP] = ode113('boat_roll_capsize',[0 1*(2*pi)/omegaZ],xInit,OPTIONS);
+            trajEnsemble = struct([]);
+            % trajEnsemble.t0 = [];
+            % trajEnsemble.x0 = [];
+            xInit = [phiMesh(ii,jj) pPhiMesh(ii,jj)];
+            tic;
+            for kk = 1:NEnsemble
+                [tO,xO] = func_get_traj_random_waves(xInit);
+                trajEnsemble(kk).t0 = tO;
+                trajEnsemble(kk).x0 = xO;
+            end
+            ensembleRunTime = toc;
 
-HVec(numH) = H;
-numH = numH + 1;
+            %%Generate the point under the periodic forcing
+            % OPTIONS = odeset('RelTol',3e-14,'AbsTol',1e-14,'Events','on'); % high accuracy
+            OPTIONS = odeset('RelTol',3e-14,'AbsTol',1e-14); % high accuracy w/o event catching
 
-save(['matlab_',num2str(H),'.mat'])
-end
+            [tP,xP] = ode113('boat_roll_capsize',[0 1*(2*pi)/omegaZ],xInit,OPTIONS);
 
-%% Compute the disturbance magnitude for each sample in the ensemble
-ii = 1;
-iiH = 2;
-finalH = 10;
-iidH = 0.1;
-while iiH < finalH
-
-    load(['matlab_',num2str(iiH),'.mat'])
-    chi0Vec = zeros(NEnsemble,1);
-    for mm = 1:NEnsemble
-        chi0Vec(mm,1) = norm(trajEnsemble(mm).x0(end,:) - xP(end,:));
-    end
-    avgChi0Vec(ii) = mean(chi0Vec);
-    stdChi0Vec(ii) = std(chi0Vec);
-    HVec(ii) = iiH;
+            HVec(numH) = H;
     
-    ii = ii + 1;
-    iiH = iiH + iidH;
+            save(['matlab_',num2str(H),'.mat'])
+            
+            chi0Vec = zeros(NEnsemble,1);
+            for mm = 1:NEnsemble
+                chi0Vec(mm,1) = norm(trajEnsemble(mm).x0(end,:) - xP(end,:));
+            end
+            avgChi0Vec(numH) = mean(chi0Vec);
+            stdChi0Vec(numH) = std(chi0Vec);
+            
+            numH = numH + 1;
+            
+        end
+        
+        save(['ensemble_traj_',num2str(H),'_',num2str(ii),'_',...
+            num2str(jj),'.mat'])
+    end
 end
+
+
 

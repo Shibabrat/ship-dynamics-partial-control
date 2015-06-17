@@ -81,8 +81,8 @@ save(['asymptotic_sculpting_params_',num2str(epsilonC),'.mat'])
 
 %====LCC Cluster specific===============%
 if clusterFlag,
-    load(['~/partial-control-roll-capsize/caseG/Fig5c-caseG-control-disturbance-I/safe_set_',num2str(epsilonC),'.mat']);
-    load('~/partial-control-roll-capsize/caseG/initial_set_image.mat');
+    load(['~/partial-control-roll-capsize/caseD/Fig5c-caseG-control-disturbance-I/safe_set_',num2str(epsilonC),'.mat']);
+    load('~/partial-control-roll-capsize/caseD/initial_set_image.mat');
 else
     load(['safe_set_',num2str(epsilonC),'.mat'])
     load initial_set_image
