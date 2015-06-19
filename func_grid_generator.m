@@ -37,6 +37,9 @@ function func_grid_generator()
     %
     % [fx,fy]=grid_points_image(1,1:2,k,l);
 
+    % Author: Shibabrat Naik
+    % Modified for tube dynamics of 2-DOF ship roll-pitch model
+    
     format long
 
     %Obtaining the energy of tube
@@ -71,17 +74,4 @@ function func_grid_generator()
 end
 
     
-    % Setting up the flag for compiling; if any changes are made to the source
-    % or header files, set this to true
-%     editFlag = true;        
-% 
-%     if editFlag,
-%         mex func_get_image.c ...
-%             -I/usr/local/include/ ...
-%             -L/usr/local/lib/ -lgsl -lgslcblas -lm ...
-%             CFLAGS="\$CFLAGS -std=c99"
-%     end
     
-%     tic;
-%     [tArray,xArray] = driver_integrate(0, 17*((2*pi)/omegaE), phiMesh, pPhiMesh);
-%     toc;

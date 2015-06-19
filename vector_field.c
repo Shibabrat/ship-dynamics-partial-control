@@ -14,7 +14,10 @@ int velocity_field(double t, const double posIn[], double velOut[], void *params
 {
 
     //  This is where a new vector field can be introduced
-	if ( strcmp(SYSTEM,"no_blinking_no_slip") == 0 )
+	if ( strcmp(SYSTEM,"ship_roll_model") == 0 ){
+		ship_roll_model(t, (double *)posIn, (double *)velOut, params);
+	}
+	else if ( strcmp(SYSTEM,"no_blinking_no_slip") == 0 )
     {
 		no_blinking_no_slip(t, (double *)posIn, (double *)velOut, params);
     }
@@ -50,6 +53,38 @@ int velocity_field(double t, const double posIn[], double velOut[], void *params
 
 	return GSL_SUCCESS;
 }
+
+	/* Vector field for ship roll model */
+int ship_roll_model(double t, const double posIn[2], double velOut[2], void *params){
+
+    int dirtn = DIRECTION;
+    
+    double Mt, phi, pPhi;
+	/* Roll angle of vanishing stability */
+    double phiCritical = 0.88;
+    double H = PARAMETER_01;
+    double chi = PARAMETER_02;
+    
+    /* Parameters for Edith Terkol */
+    double b1 = 0.0043, b2 = 0.0225, c1 = 0.384, c2 = 0.1296, 
+        c3 = 1.0368, c4 = -4.059, c5 = 2.4052, I = 1174, wM = 0;
+
+    /* Disturbance due to regular seas */
+    double alpha0 = 0.73, omegaN = 0.62, omegaE = 0.527, lambda = 221.94;
+    
+    Mt = I*alpha0*pow(omegaN,2)*pi*(H/lambda)*(sin(chi))*sin(omegaE*t);
+    
+    phi = posIn[0]; 
+    pPhi = posIn[1];
+    
+    velOut[0] = pPhi;
+    velOut[1] = -b1*pPhi - b2*fabs(pPhi)*pPhi - c1*phi - 
+            c2*fabs(phi)*phi - c3*pow(phi,3) -c4*fabs(phi)*pow(phi,3) - 
+            c5*pow(phi,5) + Mt/I;
+    
+    return GSL_SUCCESS;
+}
+
 
 int blinking_no_slip(double t, const double posIn[2], double velOut[2], void *params)
     

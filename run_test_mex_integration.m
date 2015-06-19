@@ -1,7 +1,7 @@
 clear;close;clc
 
 % Setting up the flag for compiling; if any changes are made to the source
-    % or header files, set this to true
+% or header files, set this to true
     editFlag = true;        
 
     if editFlag,
@@ -15,17 +15,15 @@ clear;close;clc
             CFLAGS="\$CFLAGS -std=c99"
     end
     
-%     tic;
-%     [tArray,xArray] = driver_integrate(0, 17*((2*pi)/omegaE), phiMesh, pPhiMesh);
-%     toc;
-
 %% Integrate a grid of points
 phiRes = 2;
 pPhiRes = 1000000;
 [phiMesh,pPhiMesh] = meshgrid(linspace(-0.88,0.88,phiRes)',linspace(-0.52,0.52,pPhiRes)');
 ic = [reshape(phiMesh,phiRes*pPhiRes,1),reshape(pPhiMesh,phiRes*pPhiRes,1)];
 
-tic; [xOut] = mex_integration([0,12],ic); toc
+tic; 
+[xOut] = mex_integration([0,12],ic); 
+runTime = toc;
 
 plot(xOut(:,1),xOut(:,2),'.k')
 hold on

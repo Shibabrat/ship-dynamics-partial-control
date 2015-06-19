@@ -20,6 +20,11 @@ int velocity_field(double t, const double posIn[], double velOut[], void *params
 /**
 *	@brief		Function to define double gyre velocity field
 **/
+int ship_roll_model(double t, const double posIn[], double velOut[], void *params);
+
+/**
+*	@brief		Function to define ODES for ship roll model 
+**/
 int double_gyre(double t, const double posIn[], double velOut[], void *params);
 
 /**

@@ -2,7 +2,8 @@
 %rough seas and the discrete disturbance used in partial control
 
 global H chi
-numGridPts = 5;
+phiRes = 5;
+pPhiRes = 5;
 [phiMesh, pPhiMesh] = meshgrid(linspace(-0.88,0.88,phiRes)', ...
     linspace(-0.52,0.52,pPhiRes)');
 % phiMesh = -0.26;

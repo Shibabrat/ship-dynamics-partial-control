@@ -9,8 +9,9 @@
 #include <gsl/gsl_roots.h>
 #include <math.h>
 
-#include "parameters.h"
-#include "vector_field.h"
+#include "macros.h"
+// #include "parameters.h"
+// #include "vector_field.h"
 
 /** 
 * 	@brief  			Function to evolve an initial condition for 2D vector fields

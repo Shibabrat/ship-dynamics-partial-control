@@ -5,4 +5,5 @@
 *.mat
 *.txt
 *~
+*.mex*
 ./ensemble-average/*

@@ -8,5 +8,7 @@
 #define min_dis .01
 #define pi   3.14159265358979
 #define err_cross 1e-9
+#define PARAMETER_03 3.14159265358979/3
+// #define NDIM 2
 
 #endif

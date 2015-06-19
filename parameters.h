@@ -16,7 +16,7 @@ extern 	char 	BASE_FILENAME[SHORTSTRING];
 
 extern 	double 	PARAMETER_01;
 extern	double	PARAMETER_02;
-extern 	double	PARAMETER_03;
+// extern 	double	PARAMETER_03;
 
 extern 	double 	T_BEGIN;
 extern 	double	T_END;
@@ -50,27 +50,27 @@ void set_system_parameters();
 
 * 	@return Returns nothing
 **/
-void get_system_parameters(char *argv[]);
+// void get_system_parameters(char *argv[]);
 
 /**
 *	@brief	Function to set paramters that are derived from input parameters or paths
 
 *	@return Returns nothing
 **/
-void set_derived_parameters();
+// void set_derived_parameters();
 
 /**
 *	@brief	Function to copy data to output directory using indexed file names
 
 *	@return Returns nothing
 **/
-void move_data_to_output_dir(long int datafirstframe, long int datalastframe);
+// void move_data_to_output_dir(long int datafirstframe, long int datalastframe);
 
 /**
 *	@brief 	Function to move file to outpur directory
 	
 * 	@return Returns nothing
 **/
-void move_file_to_output_dir(char fileName[]);
+// void move_file_to_output_dir(char fileName[]);
 
 #endif
