@@ -11,7 +11,6 @@
 #include <matrix.h>
 
 #include "mex.h"
-// #include "writeFile.h"
 #include "parameters.h"
 #include "integration.h"
 

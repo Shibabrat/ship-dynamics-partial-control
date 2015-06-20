@@ -10,8 +10,18 @@
 #include <math.h>
 
 #include "macros.h"
-// #include "parameters.h"
-// #include "vector_field.h"
+
+/**
+*	@brief Function to define the ODEs for ship roll model
+
+* 	\param 	t 			Current time of integration
+*	\param 	posIn[2] 	Vector of initial condition
+*	\param  VelOut[2]   Right hand side of the system of ODEs
+*  	\param  params      Parameters for the odes
+
+*  	\return Returns nothing
+*/
+int ship_roll_model(double t, const double posIn[2], double velOut[2], void *params);
 
 /** 
 * 	@brief  			Function to evolve an initial condition for 2D vector fields

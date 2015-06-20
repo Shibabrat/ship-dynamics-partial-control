@@ -1,4 +1,4 @@
-README file for using the partial control sculpting codes
+README file for partial control of ship dynamics
 ---
 
 * General convention of naming files and variables:
@@ -13,3 +13,5 @@ in traditional programming and mathematical programming which uses standard
 scientific notation to write equations. When possible, I have tried using the 
 former approach to make the piece of code transparent and readable while, the 
 functions developed by the earlier authors may differ.
+
+* References
