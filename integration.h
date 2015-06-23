@@ -1,14 +1,16 @@
 #ifndef __INTEGRATION_H__
 #define __INTEGRATION_H__
 
-#include <stdio.h>
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_odeiv.h>
 #include <gsl/gsl_roots.h>
+#include <gsl/gsl_rng.h>
+#include <gsl/gsl_randist.h>
 #include <math.h>
 
+#include "mex.h"
 #include "macros.h"
 
 /**
@@ -35,6 +37,9 @@ int ship_roll_model(double t, const double posIn[2], double velOut[2], void *par
 
 * 	\return Returns nothing
 */
+
+int ship_roll_model_stoc_forcing(double t, const double posIn[2], double velOut[2], void *params);
+
 int evolve_pt(double curr_t, double tau, double curr_pos[], double *iter_pos, double params);
 
 /**

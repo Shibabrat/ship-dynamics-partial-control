@@ -11,7 +11,6 @@
 #include <matrix.h>
 
 #include "mex.h"
-#include "parameters.h"
 #include "integration.h"
 
 /* Input Arguments */
@@ -56,7 +55,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
     m = mxGetM(xIn);
     n = mxGetN(xIn);
-    printf("Size of input array: %d x %d\n",m, n);
+    // printf("Size of input array: %d x %d\n",m, n);
     
     /* 3rd argument of time span is row vector of initial and final time */
     if(mxGetM(prhs[0])!=1) {
@@ -104,7 +103,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
         // for (j = 0; j < n; j++){
             currPt[0] = currPos[i];
             currPt[1] = currPos[i + m];
-            printf("%lf \t %lf \n",currPt[0],currPt[1] );
+            // mexPrintf("%lf \t %lf \n",currPt[0],currPt[1] );
             evolve_pt(currT, tau, currPt, iterPt, params);
             iterPos[i] = iterPt[0];
             iterPos[i + m] = iterPt[1];

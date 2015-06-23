@@ -11,7 +11,7 @@
 
 int ship_roll_model(double t, const double posIn[2], double velOut[2], void *params){
 
-	int dirtn = -1;
+	int dirtn = 1;
     
     double Mt, phi, pPhi;
 	/* Roll angle of vanishing stability */
@@ -20,14 +20,19 @@ int ship_roll_model(double t, const double posIn[2], double velOut[2], void *par
     double chi = 90*(pi/180);
     
     /* Parameters for Edith Terkol */
-    double b1 = 0.0043, b2 = 0.0225, c1 = 0.384, c2 = 0.1296, 
+//     double b1 = 0.0043, b2 = 0.0225, c1 = 0.384, c2 = 0.1296, 
+//         c3 = 1.0368, c4 = -4.059, c5 = 2.4052, I = 1174, wM = 0;
+    
+    /* Parameters for Edith Terkol, without damping */
+    double b1 = 0.0, b2 = 0.0, c1 = 0.384, c2 = 0.1296, 
         c3 = 1.0368, c4 = -4.059, c5 = 2.4052, I = 1174, wM = 0;
-
+    
     /* Disturbance due to regular seas */
     double alpha0 = 0.73, omegaN = 0.62, omegaE = 0.527, lambda = 221.94;
     
     Mt = I*alpha0*pow(omegaN,2)*pi*(H/lambda)*(sin(chi))*sin(omegaE*t);
-    
+	// mexPrintf("%lf\n",Mt);
+
     phi = posIn[0]; 
     pPhi = posIn[1];
     
@@ -39,6 +44,80 @@ int ship_roll_model(double t, const double posIn[2], double velOut[2], void *par
     return GSL_SUCCESS;
 }
 
+int ship_roll_model_stoc_forcing(double t, const double posIn[2], double velOut[2], void *params){
+
+	int dirtn = 1, i, N;
+
+	double omegaI, omegaIE, tempRatio, waveEnergySpect, fPhi = 0, 
+		phi, pPhi;
+	/* Roll angle of vanishing stability */
+    double phiCritical = 0.88;
+    double H = 4.94;
+    double chi = 90*(pi/180);
+
+	/* Parameters for Edith Terkol */
+    double b1 = 0.0043, b2 = 0.0225, c1 = 0.384, c2 = 0.1296, 
+        c3 = 1.0368, c4 = -4.059, c5 = 2.4052, I = 1174, wM = 0;
+
+    /* Disturbance due to regular seas */
+    double alpha0 = 0.73, dOmega = 0.01, finOmega = 2, initOmega = 0.01, 
+    	omegaNPhi = 0.62, omegaZ = 0.527;
+	double U = 4*0.514444444; // m/s vessel speed, 1 knot = 0.514444444 m / s
+
+    double epsilonI;
+
+    N = ( finOmega - initOmega )/dOmega + 1;
+    // printf("%d\n", N);
+
+	// const gsl_rng_type *T;
+	// gsl_rng *r = gsl_rng_alloc(gsl_rng_taus);
+	// gsl_rng_env_setup();
+	// T = gsl_rng_default;
+	// r = gsl_rng_alloc (T);
+
+
+    gsl_rng *r;
+    if((r = gsl_rng_alloc(gsl_rng_mt19937)) == NULL) {
+    printf("ERROR: Could not create random number generator\n");
+    exit(1);
+  	}
+  	gsl_rng_set(r, 1167);
+
+	char fileName[] = "test_forcing.txt";
+	FILE *writeFile;
+	writeFile = fopen(fileName,"w");
+    for (i = 0; i < N; ++i)
+    {
+		epsilonI = 2*pi*gsl_rng_uniform (r);
+		// mexPrintf ("%lf\n", epsilonI);
+		fprintf(writeFile, "%lf\n", epsilonI);
+
+		omegaI = initOmega + i*dOmega;
+		omegaIE = omegaI - ((pow(omegaI,2)*U)/gAdg)*cos(chi);
+    	tempRatio = pow((omegaZ/omegaI),4);
+    	waveEnergySpect = 0.11*pow(H,2)*(tempRatio/omegaI)*exp(-0.44*tempRatio);
+		fPhi = fPhi + pow(omegaI,2)*sqrt(waveEnergySpect)*sin(omegaIE*t + epsilonI);	
+	}	
+	fPhi = pow(omegaNPhi,2)*sin(chi)*alpha0*(sqrt(2*dOmega)/gAdg)*fPhi;
+	
+	
+	
+	fclose(writeFile);
+
+	// mexPrintf("%lf\n",fPhi);
+	gsl_rng_free (r);
+
+	phi = posIn[0]; 
+    pPhi = posIn[1];
+    
+    velOut[0] = dirtn*pPhi;
+    velOut[1] = dirtn*(-b1*pPhi - b2*fabs(pPhi)*pPhi - c1*phi - 
+            c2*fabs(phi)*phi - c3*pow(phi,3) -c4*fabs(phi)*pow(phi,3) - 
+            c5*pow(phi,5) + fPhi);
+
+    return GSL_SUCCESS;
+
+}
 
 int evolve_pt(double curr_t, double tau, double curr_pos[], double *iter_pos, double params)
 
@@ -51,11 +130,8 @@ int evolve_pt(double curr_t, double tau, double curr_pos[], double *iter_pos, do
     gsl_odeiv_control *c = gsl_odeiv_control_y_new(1e-12, 1e-12);
     gsl_odeiv_evolve *e = gsl_odeiv_evolve_alloc(NDIM);
 
-    // gsl_odeiv_system sys = {velocity_field, NULL, NDIM, &params};
-
-    // gsl_odeiv_system sys = {double_gyre, NULL, NDIM, &params};
-
     gsl_odeiv_system sys = {ship_roll_model, NULL, NDIM, &params};
+//     gsl_odeiv_system sys = {ship_roll_model_stoc_forcing, NULL, NDIM, &params};
 
     int i;
     double t, tNext;

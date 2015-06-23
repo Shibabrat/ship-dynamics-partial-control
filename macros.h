@@ -8,5 +8,6 @@
 #define min_dis .01
 #define pi   3.14159265358979
 #define err_cross 1e-9
+#define gAdg	9.81 // m^2/s
 
 #endif
