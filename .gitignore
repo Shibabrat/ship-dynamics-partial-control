@@ -6,4 +6,6 @@
 *.txt
 *~
 *.mex*
-./ensemble-average/*
+./tests/*
+./data/*
+./figures/*
