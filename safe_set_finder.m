@@ -14,8 +14,10 @@ function safe_set_finder(N,clusterFlag)
 % during each iteration.
 % -The array grid_points_shrink that will host the shrinked resulting set
 % during each iteration.
-
-% Adapted and modified by Shibabrat Naik, Shane Ross
+% 
+% Original version was developed by Sabuco et al (2012) 
+%
+% Adapted and modified by Shibabrat Naik
 % Date: 22 Nov 2014
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
