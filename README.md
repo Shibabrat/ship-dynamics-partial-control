@@ -14,4 +14,7 @@ scientific notation to write equations. When possible, I have tried using the
 former approach to make the piece of code transparent and readable while, the 
 functions developed by the earlier authors may differ.
 
-* References
+## References
+Papers which developed and implemented the safe set sculpting algorihtms:
+
+Sabuco et al(2012): http://scitation.aip.org/content/aip/journal/chaos/22/4/10.1063/1.4754874 

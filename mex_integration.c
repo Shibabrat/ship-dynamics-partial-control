@@ -10,7 +10,6 @@
 #include <gsl/gsl_roots.h>
 #include <matrix.h>
 
-#include "mex.h"
 #include "integration.h"
 
 /* Input Arguments */
@@ -22,6 +21,7 @@
 /* Output Arguments */
 
 #define	xOut    plhs[0]
+#define xSafeFlag plhs[1]
 
 
 /* The gateway function */
@@ -32,7 +32,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
 {
 //     int numPts, numDim;
     int i,j;
-    double *currPos, *iterPos, *timeSpan;
+    double *currPos, *iterPos, *timeSpan, *flag;
+    mwSize dimen[2];
     size_t m,n;
     double params = 0.1;
     double currPt[2], iterPt[2];
@@ -43,15 +44,10 @@ void mexFunction(int nlhs, mxArray *plhs[],
                 "This function takes 2 arguments.");
 	}
 
-	if (nlhs != 1){
+	if (nlhs != 2){
 		mexErrMsgIdAndTxt("MyToolbox:mex_integration:nlhs",
-                "This function gives 1 output.");
+                "This function gives 2 outputs.");
 	}
-
-/* verify the type of arguments: array or not */
-//     numPts = mxGetScalar(prhs[0]);
-//     numDim = mxGetScalar(prhs[1]);
-//     printf("Size of input array: %d x %d\n",numPts, numDim);
 
     m = mxGetM(xIn);
     n = mxGetN(xIn);
@@ -91,23 +87,34 @@ void mexFunction(int nlhs, mxArray *plhs[],
     currPos = mxGetPr(xIn);
     
 /* Create a matrix for the return argument */
+    dimen[0] = m;
+    dimen[1] = 1;
     xOut = mxCreateDoubleMatrix((mwSize)m, (mwSize)n, mxREAL);
-       
+    xSafeFlag = mxCreateNumericArray(2, dimen, mxDOUBLE_CLASS, mxREAL);
+  
 /* Assign pointers to each input and output */
     iterPos = mxGetPr(xOut);
+    flag = mxGetPr(xSafeFlag);
 
-/* code here */
-    
-    /* Segment for integration grid of points */ 
+/* Segment for integration of grid of points */ 
     for (i = 0; i < m; i++){
         // for (j = 0; j < n; j++){
             currPt[0] = currPos[i];
             currPt[1] = currPos[i + m];
             // mexPrintf("%lf \t %lf \n",currPt[0],currPt[1] );
-            evolve_pt(currT, tau, currPt, iterPt, params);
+            // evolve_pt(currT, tau, currPt, iterPt, params);
+            evolve_pt_event(currT, tau, currPt, iterPt, params);
             iterPos[i] = iterPt[0];
             iterPos[i + m] = iterPt[1];
-            // printf("%lf \t %lf \n",iterPt[0],iterPt[1] );
+            // Check if the state is capsized or safe during the time span
+            /* Here we check which point of the grid is in the forbidden region and which not. */      
+            /* If it is the forbidden region we set lock to '0'. If it is not in the forbidden */
+            /* region we set lock to '1'. */
+            if (fabs(iterPt[0]) >= 0.88)
+                flag[i] = 0;
+            else
+                flag[i] = 1; 
+            mexPrintf("%lf \t %lf \n",iterPt[0],iterPt[1] );
         // }
     }
 

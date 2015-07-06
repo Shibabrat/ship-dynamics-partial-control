@@ -1,6 +1,11 @@
 #ifndef __INTEGRATION_H__
 #define __INTEGRATION_H__
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <time.h>       /* clock_t, clock, CLOCKS_PER_SEC */
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_matrix.h>
@@ -52,24 +57,16 @@ int evolve_pt(double curr_t, double tau, double curr_pos[], double *iter_pos, do
 
 *	\return Returns nothing
 */
-int evolve_pt_time_event(double curr_t, double tau, double curr_pos[], double *iter_pos);
 
-/**
-*	@brief 				Function to integrate initial conditions for the time range and terminate
-						integration when the event occurs. 
-**/
-int iterate_event_check(double timeSpan[], double curr[], double *output, double *eventTime, int *eventFlag);
+int evolve_pt_event(double curr_t, double tau, double curr_pos[], double *iter_pos, double params);
 
-/**
-*	@brief 				Function to define the event function, which is being checked to terminate
-						integration
-**/
-double eventfun(const double Y[], int which);
+double event_fun(const double Y[], double valueFun);
 
 /**
 *	@brief 				Function to rotate trajectories for twisted pipe; duplicate function exists under perron.c
 
 **/
-int rotate_pos(double loc_out[], double *posInSecondCell, double angleOfRotation);
+
+double eventfun(const double Y[],int which); 
 
 #endif

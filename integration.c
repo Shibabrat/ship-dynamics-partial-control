@@ -3,7 +3,7 @@
 
 *   @brief      Functions to call GSL library options for integrating ODEs.
 
-*   @bug        Event check integration may needs more tests
+*   @bug        Event check integration may need more tests
 
 *   @copyright  Shibabrat Naik[2015]
 **/
@@ -20,12 +20,12 @@ int ship_roll_model(double t, const double posIn[2], double velOut[2], void *par
     double chi = 90*(pi/180);
     
     /* Parameters for Edith Terkol */
-//     double b1 = 0.0043, b2 = 0.0225, c1 = 0.384, c2 = 0.1296, 
-//         c3 = 1.0368, c4 = -4.059, c5 = 2.4052, I = 1174, wM = 0;
+    double b1 = 0.0043, b2 = 0.0225, c1 = 0.384, c2 = 0.1296, 
+        c3 = 1.0368, c4 = -4.059, c5 = 2.4052, I = 1174, wM = 0;
     
     /* Parameters for Edith Terkol, without damping */
-    double b1 = 0.0, b2 = 0.0, c1 = 0.384, c2 = 0.1296, 
-        c3 = 1.0368, c4 = -4.059, c5 = 2.4052, I = 1174, wM = 0;
+//     double b1 = 0.0, b2 = 0.0, c1 = 0.384, c2 = 0.1296, 
+//         c3 = 1.0368, c4 = -4.059, c5 = 2.4052, I = 1174, wM = 0;
     
     /* Disturbance due to regular seas */
     double alpha0 = 0.73, omegaN = 0.62, omegaE = 0.527, lambda = 221.94;
@@ -46,7 +46,7 @@ int ship_roll_model(double t, const double posIn[2], double velOut[2], void *par
 
 int ship_roll_model_stoc_forcing(double t, const double posIn[2], double velOut[2], void *params){
 
-	int dirtn = 1, i, N;
+	int dirtn = -1, i, N;
 
 	double omegaI, omegaIE, tempRatio, waveEnergySpect, fPhi = 0, 
 		phi, pPhi;
@@ -122,7 +122,7 @@ int ship_roll_model_stoc_forcing(double t, const double posIn[2], double velOut[
 int evolve_pt(double curr_t, double tau, double curr_pos[], double *iter_pos, double params)
 
 {
-	int NDIM = 2;
+	// int NDIM = 2;
     //Setting up the GSL integrator routines
     const gsl_odeiv_step_type *T = gsl_odeiv_step_rkf45;
     gsl_odeiv_step *s = gsl_odeiv_step_alloc(T, NDIM);
@@ -136,7 +136,7 @@ int evolve_pt(double curr_t, double tau, double curr_pos[], double *iter_pos, do
     int i;
     double t, tNext;
     double tMin, tMax, deltaT;
-    double h = 1e-6; 
+    double h = 1e-10; 
     double y[NDIM];
     
     tMin = curr_t;
@@ -178,234 +178,105 @@ int evolve_pt(double curr_t, double tau, double curr_pos[], double *iter_pos, do
     return EXIT_SUCCESS;
 }
 
-// int evolve_pt_time_event(double curr_t, double tau, double curr_pos[], double *iter_pos)
-// {
+int evolve_pt_event(double curr_t, double tau, double curr_pos[], double *iter_pos, double params)
 
-//     double loc_in[NDIM];
-//     double loc_out[NDIM];
-//     double posInSecondCell[NDIM];
-//     int intContinues = 1;
-//     double eventTime;
-//     int eventFlag;
-//     int numHalfCells = 0;
-//     int i;
-//     double chi = PARAMETER_03;		//Angle set here!!!
-//     double timeSpan[2], timeSpanNew[2];
+/* Fixed time stepping to locate event during integration
+*
+*/
 
-//     timeSpan[0] = curr_t;
-//     timeSpan[1] = tau;
 
-//     loc_in[0] = curr_pos[0];
-//     loc_in[1] = curr_pos[1];
-    
-//     while (intContinues == 1)
-//     {
-//         loc_in[2] = 0;
-//         iterate_event_check(timeSpan, loc_in, loc_out, &eventTime, &eventFlag);
-//         if ( eventFlag == 0)
-//             intContinues = 0;
-//         else
-//         {
-//             numHalfCells += 1;
-//             rotate_pos(loc_out, posInSecondCell, chi);
-//             timeSpanNew[0] = eventTime;
-//             timeSpanNew[1] = timeSpan[1];
-//             posInSecondCell[2] = 0;
-//             iterate_event_check(timeSpanNew, posInSecondCell, loc_out, &eventTime, &eventFlag); 
-//             if ( eventFlag == 0)
-//             {
-//                 rotate_pos(loc_out, posInSecondCell, chi);
-//                 intContinues = 0;   
-//                 for (i=0;i<NDIM;i++)
-//                     loc_out[i] = posInSecondCell[i];
-//             }
-//             else
-//             {
-//                 numHalfCells += 1;
-//                 rotate_pos(loc_out, posInSecondCell, chi);
-//                 timeSpan[0] = eventTime;
-//                 timeSpan[1] = timeSpan[1];
-//                 for (i=0;i<NDIM;i++)
-//                     loc_in[i] = posInSecondCell[i];
-//                 intContinues = 1;
-//             }
-//         }   
-//     }
+{
+	int i, j, k;			
+	double deltaT = 1e-2;		
+	int isterminal = 1;
+	double eventTime, eventFlag = 1;
+	double phiCritical = 0.88;
+	double new_curr_pos[NDIM], new_iter_pos[NDIM];
 
-//     iter_pos[0] = loc_out[0];
-//     iter_pos[1] = loc_out[1];
-//     iter_pos[2] = loc_out[2];
+	double ti = curr_t, tf = curr_t + tau;
+	long int numSteps = 0;
 
-//     printf("x=%f\ny=%f\ntheta = %f\nEvent time = %f\nEvent flag = %d\n", iter_pos[0], iter_pos[1], iter_pos[2], eventTime, eventFlag);
-    
-//     return EXIT_SUCCESS;
-// }
+	for (i = 0; i < NDIM; ++i){		
+		new_curr_pos[i] = curr_pos[i];
+		new_iter_pos[i] = iter_pos[i];
+	}
 
-// int iterate_event_check(double timeSpan[], double curr[], double *output, double *eventTime, int *eventFlag)
-// {
-//     //double mu_param=mu;
-//     int dirxn=200;          //+1 Because this is integration in positive time
-//     int dimcnt=0;
-//     double t = timeSpan[0], tf = timeSpan[1];
-//     double h = 1e-10;
-//     double y[NDIM];
-//     int ev_val = 1;     //-1 for detecting positive->negative 0-crossing, +1 for detecting negative->positive 0-crossing                    
-    
-//     *eventTime = tf;
+	/* Evolving the point*/
+	while (ti < tf){
+		evolve_pt(ti, deltaT, new_curr_pos, new_iter_pos, params);
+		numSteps = numSteps + 1;	
+		// printf("Time instant %e\n",ti);
 
-//     double prevy[NDIM];
-//     int ev_status=0;
-//     int isfirst=0;
-//     double negt; double post; 
-//         double negY[NDIM]; 
-// //         double posY[N        DIM];
-//     double negf;double posf;
-//     int isdone=0;
+		/* Trying to catch the event, if it occured */
+		if (event_fun(new_iter_pos,phiCritical) > 0 || event_fun(new_iter_pos,-phiCritical) < 0){
+			if (isterminal == 1){
+				eventTime = ti;
+				eventFlag = 0;
+				
+				for (i = 0; i < NDIM; ++i)	
+					iter_pos[i] = new_iter_pos[i];
+
+				break;
+			}
+			else
+				continue;
+			// printf("Capsize, stop integration and locate the zero of the event\n");
+		}
+		else if (event_fun(new_iter_pos,phiCritical) < 0 || event_fun(new_iter_pos,-phiCritical) > 0){
+			// printf("Safe, so go to the next time step\n");
+			eventTime = ti;
+			eventFlag = 1;
+		}
+
+		ti = ti + deltaT;
+		for (i = 0; i < NDIM; ++i)
+			new_curr_pos[i] = new_iter_pos[i];	
+	}
+
+	char fileName[] = "tests.txt";
+	FILE *writeFile;
+	writeFile = fopen(fileName,"a");
+	if (ti >= tf)
+	{
+		for (k = 0; k < NDIM - 1; ++k)
+			fprintf(writeFile, "%lf\t", curr_pos[k]);
+
+		fprintf(writeFile, "%lf\n", curr_pos[NDIM-1]);
+		for (i = 0; i < NDIM; ++i)	
+			iter_pos[i] = new_iter_pos[i];
+	}
+	
+	fclose(writeFile);
+
+	return GSL_SUCCESS;	
+}
+
+double event_fun(const double Y[], double valueFun) 
+
+/**
+*   @brief      This is the event function (0-crossings to be detected), "which" provides the direction
+                Use "which" to -1 for detecting positive->negative 0-crossing, +1 for detecting negative->positive 0-crossing
+**/
+{ 
+    double theta = Y[0];
+    double result;
+    result = (theta - valueFun);
+
+    return result; 
+}
+
+double eventfun(const double Y[],int which) 
+//This is the event function (0-crossings to be detected), "which" provides the direction
+//Use "which" to -1 for detecting positive->negative 0-crossing, +1 for detecting negative->positive 0-crossing
+{ 
+	int d;
+	double x = Y[0];
+	double y = Y[1];
+	double theta = Y[2];
+	double result;
+	// result = which*(theta - pi);
+	result = which*(x - 0.88);
+
+	return result; 
+}
  
-//     const gsl_odeiv_step_type * T = gsl_odeiv_step_rkf45;
-//     gsl_odeiv_step * s = gsl_odeiv_step_alloc (T, NDIM);
-//     gsl_odeiv_control * c = gsl_odeiv_control_y_new (1e-12, 1e-10);
-//     gsl_odeiv_evolve * e = gsl_odeiv_evolve_alloc (NDIM);
-//     gsl_odeiv_system sys = {twisted_pipe_time, NULL, NDIM, &dirxn};
-       
-
-//     for (dimcnt=0;dimcnt<NDIM;dimcnt++)
-//         y[dimcnt]=curr[dimcnt];
-       
-//     while ((t < tf) && (isdone<4)) 
-//     {
-//         for (dimcnt=0;dimcnt<NDIM;dimcnt++)
-//             prevy[dimcnt]=y[dimcnt];
-           
-//         int status = gsl_odeiv_evolve_apply (e, c, s, &sys, &t, tf, &h, y);
-         
-//         if (status != GSL_SUCCESS)
-//         {
-//             printf("MAJOR ERROR"); 
-//             break;
-//         }
-           
-//         double curr_val = eventfun(y, ev_val);
-//         double prev_val = eventfun(prevy, ev_val);
-      
-//         if (ev_status==0)       //Event handling not triggered
-//         {
-//             if (curr_val > 0 && prev_val <0)    //Check if a crossing occured during the most recent step
-//             {    
-//                 ev_status=1;        //yes there has been crossing and event handling and locating begins
-//                 isfirst=1;          //This will be used later in the code
-//             } 
-//             else
-//             {    
-//                 ev_status=0;     //no crossing..keep on integrating
-//             }
-//         }
-       
-//         if (ev_status==1)       //Event handling and locating begins    
-//         {
-//             if ( fabs(curr_val) < err_cross )       //This condition check if we have accurately found the crossing point
-//             { 
-//                 ev_status = 0;                      //Stops event handling as the desired accuracy of crossing is achieved
-//                 isdone = 1;
-//                 *eventTime = t;
-//                 *eventFlag = 1;
-//                 // printf("Found intersection ...stopping integration, time = %f \n", *eventTime);
-//                 fflush(stdin);
-//                 break;
-             
-//                 //WE HAVE GOTTEN THE NEXT ITERATE..SO QUIT INTEGRATING AND FREE ALL MEMORY
-//             }   //Back to regular integration..END of event handling
-        
-//             else  //Keep on iterating to get the best value of crossing time
-//             {
-//                 // printf("still iterating\n");
-//                 gsl_odeiv_evolve_reset(e);
-//                 if (isfirst == 1)             //IF this is the first time we are trying to guess for this particular crossing
-//                 {
-//                     isfirst=0;
-//                     for (dimcnt=0;dimcnt<NDIM;dimcnt++)
-//                     {
-//                         negY[dimcnt]=prevy[dimcnt];       //Current value is used for posf/post and previous value is used for negf/negt
-// //                      posY[dimcnt]=y[dimcnt];
-//                     }
-//                     negt=t-h;post=t;
-//                     negf=prev_val;posf=curr_val;
-//                 }
-//                 else                         //This is not the first iteration to guess the crossing time
-//                 {  
-//                     if (curr_val>0 )
-//                     { 
-//                         post=t;
-//                         posf=curr_val;
-//                     }     //Choose a new value of t on the positive side (after crossing)
-//                     else if (curr_val<0)
-//                     {
-//                         negt=t;
-//                         negf=curr_val;       //Choose a new value of t on the negative side (before crossing)
-//                         for (dimcnt=0;dimcnt<NDIM;dimcnt++)
-//                             negY[dimcnt]= y[dimcnt];
-//                     }
-//                 }
-
-//                 //Using the neg and pos values decided above, get a guess for the time of crossing
-//                 double t_guess=(post*negf-negt*posf)/(negf-posf);
-//                 tf=t_guess; 
-//                 t=negt;  //Integrate again using t_guess as final time and negt as starting time...
-//                 for (dimcnt = 0; dimcnt<NDIM; dimcnt++)
-//                     y[dimcnt] = negY[dimcnt];
-//             }
-
-//         } //End of if ev_status==1 Loop 
-        
-
-//     } //End of the time loop 
-//     if (isdone!=1)
-//     {
-//         // printf("NO event was found, time is %f\n",t);
-//         *eventTime = t;
-//         *eventFlag = 0;
-//         fflush(stdin);
-//     }
-        
-//     //Free the associated memory with the integrator routines
-//     gsl_odeiv_evolve_free (e);
-//     gsl_odeiv_control_free (c);
-//     gsl_odeiv_step_free (s);
-        
-//     for (dimcnt=0;dimcnt<NDIM;dimcnt++)
-//         output[dimcnt]=y[dimcnt];
-        
-//     return GSL_SUCCESS;
-
-// }     
-
-// double eventfun(const double Y[], int which) 
-
-// /**
-// *   @brief      This is the event function (0-crossings to be detected), "which" provides the direction
-//                 Use "which" to -1 for detecting positive->negative 0-crossing, +1 for detecting negative->positive 0-crossing
-// **/
-// { 
-//     double theta = Y[2];
-//     double result;
-//     result = which*(theta - pi);
-
-//     return result; 
-// }
-
-// int rotate_pos(double loc_out[], double *posInSecondCell, double angleOfRotation)
-// {
-//     posInSecondCell[0] = loc_out[0]*cos(angleOfRotation) + loc_out[1]*sin(angleOfRotation);
-//     posInSecondCell[1] = -loc_out[0]*sin(angleOfRotation) + loc_out[1]*cos(angleOfRotation);
-//     posInSecondCell[2] = loc_out[2];
-    
-//     return EXIT_SUCCESS;
-// }
-
-
-
- 
-  
-     
-     
-
