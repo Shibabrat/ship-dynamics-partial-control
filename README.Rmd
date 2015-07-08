@@ -2,7 +2,7 @@
 title: 'README for partial control of ship dynamics' 
 output:
   md_document:
-    variant: markdown_github
+    variant: 'markdown_github'
     toc: yes
   html_document:
     theme: united
