@@ -1,5 +1,5 @@
 ---
-title: "README for partial control of ship dynamics" 
+title: 'README for partial control of ship dynamics' 
 output:
   md_document:
     variant: markdown_github
@@ -13,7 +13,7 @@ output:
 bibliography: tube-dynamics-partial-control.bib
 ---
 
-### Usage:
+### Usage
 
 MATLAB files with **run** as prefix are driver script that depend on other functions to 
 perform certain computation. MATLAB files with **func** as prefix are functions and can be called from MATLAB script or command line. Check if it has global variables (not the best practice, so I use it sparingly) and define accordingly. I have refrained from changing the nomenclature used by @Sabuco2012c as that is not the goal of this research.
