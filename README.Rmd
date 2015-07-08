@@ -1,0 +1,27 @@
+---
+title: "README for partial control of ship dynamics" 
+output:
+  html_document:
+    theme: united
+    toc: yes
+  pdf_document:
+    highlight: zenburn
+    toc: yes
+bibliography: tube-dynamics-partial-control.bib
+---
+
+### Usage:
+
+MATLAB files with **run** as prefix are driver script that depend on other functions to 
+perform certain computation. MATLAB files with **func** as prefix are functions and can be called from MATLAB script or command line. Check if it has global variables (not the best practice, so I use it sparingly) and define accordingly. I have refrained from changing the nomenclature used by @Sabuco2012c as that is not the goal of this research.
+
+
+
+### References
+Papers which developed and implemented the safe set sculpting algorihtms:
+
+---
+nocite: |
+  @sabuco2010partial, @Sabuco2012c, @Sabuco2012, @Coccolo2013, @Zambrano2008
+...  
+  
